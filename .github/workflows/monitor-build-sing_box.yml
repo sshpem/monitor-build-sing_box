@@ -105,15 +105,15 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: sing-box-builds-${{ steps.get_tag.outputs.latest_tag }}
+          name: sing-box-builds-${{ needs.check_and_build.outputs.latest_tag_output }}
 
       # Step 3: 在你的仓库中创建 GitHub Release，并附加构建产物
       - name: Create GitHub Release in your repo
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-softfloat
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-hardfloat
+            sing-box-${{ needs.check_and_build.outputs.latest_tag_output }}-linux-mipsle-softfloat
+            sing-box-${{ needs.check_and_build.outputs.latest_tag_output }}-linux-mipsle-hardfloat
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
