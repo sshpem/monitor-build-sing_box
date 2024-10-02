@@ -51,14 +51,11 @@ jobs:
           pwd
           echo "List files in the directory:"
           ls -la
-          cd sing-box
-          echo "List files in the sing-box:"
-          ls -la
           echo "Check Go version:"
           go version
           echo "Check Go modules:"
           go mod tidy
-        working-directory: ./  # 如果 go.mod 在根目录，确保当前目录是仓库根
+        working-directory: ./singbox  # 如果 go.mod 在根目录，确保当前目录是仓库根
 
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
@@ -70,7 +67,7 @@ jobs:
             echo "Building for $GOOS/$GOARCH"
             GOOS=$GOOS GOARCH=$GOARCH go build -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH
           done
-        working-directory: ./
+        working-directory: ./sing-box
         shell: /usr/bin/bash -e {0}
 
       # Step 5: 上传构建的二进制文件供发布使用
