@@ -95,9 +95,6 @@ jobs:
       - name: Checkout your repository
         uses: actions/checkout@v3
 
-      - name: Debug latest tag
-        run: echo "Latest tag: ${{ steps.get_tag.outputs.latest_tag }}"
-
       # Step 2: 下载构建产物
       - name: Download build artifacts
         uses: actions/download-artifact@v3
