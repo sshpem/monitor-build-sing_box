@@ -111,6 +111,7 @@ jobs:
       - name: Create GitHub Release in your repo
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ needs.check_and_build.outputs.latest_tag_output }}
           files: |
             sing-box-${{ needs.check_and_build.outputs.latest_tag_output }}-linux-mipsle-softfloat
             sing-box-${{ needs.check_and_build.outputs.latest_tag_output }}-linux-mipsle-hardfloat
