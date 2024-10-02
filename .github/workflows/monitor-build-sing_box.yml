@@ -45,6 +45,18 @@ jobs:
           git clone --depth 1 --branch ${{ steps.get_tag.outputs.latest_tag }} https://github.com/SagerNet/sing-box.git
           cd sing-box
 
+      - name: Check the working directory
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "List files in the directory:"
+          ls -la
+          echo "Check Go version:"
+          go version
+          echo "Check Go modules:"
+          go mod tidy
+        working-directory: ./  # 如果 go.mod 在根目录，确保当前目录是仓库根
+
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
         run: |
