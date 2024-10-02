@@ -75,6 +75,7 @@ jobs:
         run: |
           echo "List the files in the directory to ensure builds exist"
           ls -la
+        working-directory: ./sing-box
 
       # Step 5: 上传构建的二进制文件供发布使用
       - name: Upload build artifacts
@@ -84,6 +85,7 @@ jobs:
           path: |
             sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-softfloat
             sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-hardfloat
+        working-directory: ./sing-box
 
   release:
     needs: check_and_build
