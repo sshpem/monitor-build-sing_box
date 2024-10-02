@@ -35,6 +35,7 @@ jobs:
           else
             echo "No new tag detected."
             exit 0
+          fi
         env:
           LATEST_TAG: ${{ steps.get_tag.outputs.latest_tag }}
 
