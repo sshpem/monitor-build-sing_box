@@ -60,12 +60,13 @@ jobs:
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
         run: |
-          platforms=("linux/mipsle" "linux/armv7")
+          platforms=("linux/mipsle/softfloat" "linux/mipsle/hardfloat")
           for platform in "${platforms[@]}"; do
             GOOS=$(echo $platform | cut -d'/' -f1)
             GOARCH=$(echo $platform | cut -d'/' -f2)
+            GOMIPS=$(echo $platform | cut -d'/' -f3)
             echo "Building for $GOOS/$GOARCH"
-            GOOS=$GOOS GOARCH=$GOARCH go build -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH
+            GOOS=$GOOS GOARCH=$GOARCH GOMIPS=$GOMIPS go build -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH-$GOMIPS
           done
         working-directory: ./sing-box
         shell: /usr/bin/bash -e {0}
@@ -76,8 +77,8 @@ jobs:
         with:
           name: sing-box-builds-${{ steps.get_tag.outputs.latest_tag }}
           path: |
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-armv7
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-softfloat
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-hardfloat
 
   release:
     needs: check_and_build
@@ -99,8 +100,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-armv7
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-softfloat
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-hardfloat
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
