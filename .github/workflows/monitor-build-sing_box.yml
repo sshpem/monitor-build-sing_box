@@ -83,8 +83,8 @@ jobs:
         with:
           name: sing-box-builds-${{ steps.get_tag.outputs.latest_tag }}
           path: |
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-softfloat
-            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-hardfloat
+            ./sing-box/sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-softfloat
+            ./sing-box/sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-hardfloat
 
   release:
     needs: check_and_build
