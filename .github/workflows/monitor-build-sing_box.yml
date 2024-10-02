@@ -9,6 +9,8 @@ on:
 jobs:
   check_and_build:
     runs-on: ubuntu-latest
+    outputs:
+      latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
 
     steps:
       # Step 1: 获取 SagerNet/sing-box 最新的标签
@@ -97,7 +99,7 @@ jobs:
 
       - name: Debug latest tag
         run: |
-          echo "Latest tag: ${{ steps.get_tag.outputs.latest_tag }}"
+          echo "Latest tag: ${{ needs.check_and_build.outputs.latest_tag_output }}"
 
       # Step 2: 下载构建产物
       - name: Download build artifacts
