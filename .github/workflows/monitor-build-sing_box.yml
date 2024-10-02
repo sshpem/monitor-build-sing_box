@@ -1,1 +1,91 @@
+name: Monitor and Build sing-box on New Tag
+
+# 触发条件：定时触发（每小时检查一次），或者手动触发
+on:
+  schedule:
+    - cron: '0 * * * *'  # 每小时检查一次
+  workflow_dispatch:  # 允许手动触发工作流
+
+jobs:
+  check_and_build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: 获取 SagerNet/sing-box 最新的标签
+      - name: Get latest tag from SagerNet/sing-box
+        id: get_tag
+        run: |
+          LATEST_TAG=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
+          echo "Latest tag from SagerNet/sing-box is: $LATEST_TAG"
+          echo "::set-output name=latest_tag::$LATEST_TAG"
+
+      # Step 2: 检查是否有新标签
+      - name: Check for new tag
+        id: check_tag
+        run: |
+          if [ -f last_tag.txt ]; then
+            LAST_TAG=$(cat last_tag.txt)
+          else
+            LAST_TAG=""
+          fi
+          echo "Last checked tag: $LAST_TAG"
+          if [ "$LATEST_TAG" != "$LAST_TAG" ]; then
+            echo "New tag detected: $LATEST_TAG"
+            echo "$LATEST_TAG" > last_tag.txt
+          else
+            echo "No new tag detected."
+            exit 0
+        env:
+          LATEST_TAG: ${{ steps.get_tag.outputs.latest_tag }}
+
+      # Step 3: 克隆 SagerNet/sing-box 仓库
+      - name: Clone sing-box repository
+        run: |
+          git clone --depth 1 --branch ${{ steps.get_tag.outputs.latest_tag }} https://github.com/SagerNet/sing-box.git
+          cd sing-box
+
+      # Step 4: 交叉编译，构建多个平台的二进制文件
+      - name: Build the program
+        run: |
+          platforms=("linux/mipsle" "linux/armv7")
+          for platform in "${platforms[@]}"; do
+            GOOS=$(echo $platform | cut -d'/' -f1)
+            GOARCH=$(echo $platform | cut -d'/' -f2)
+            echo "Building for $GOOS/$GOARCH"
+            GOOS=$GOOS GOARCH=$GOARCH go build -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH
+          done
+
+      # Step 5: 上传构建的二进制文件供发布使用
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sing-box-builds-${{ steps.get_tag.outputs.latest_tag }}
+          path: |
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-armv7
+
+  release:
+    needs: check_and_build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: 检出你的仓库代码
+      - name: Checkout your repository
+        uses: actions/checkout@v3
+
+      # Step 2: 下载构建产物
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: sing-box-builds-${{ steps.get_tag.outputs.latest_tag }}
+
+      # Step 3: 在你的仓库中创建 GitHub Release，并附加构建产物
+      - name: Create GitHub Release in your repo
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle
+            sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-armv7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
