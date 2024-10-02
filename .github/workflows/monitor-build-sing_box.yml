@@ -55,6 +55,8 @@ jobs:
             echo "Building for $GOOS/$GOARCH"
             GOOS=$GOOS GOARCH=$GOARCH go build -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH
           done
+        working-directory: ./
+        shell: /usr/bin/bash -e {0}
 
       # Step 5: 上传构建的二进制文件供发布使用
       - name: Upload build artifacts
