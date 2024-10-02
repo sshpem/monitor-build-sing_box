@@ -55,7 +55,7 @@ jobs:
           go version
           echo "Check Go modules:"
           go mod tidy
-        working-directory: ./singbox  # 如果 go.mod 在根目录，确保当前目录是仓库根
+        working-directory: ./sing-box  # 如果 go.mod 在根目录，确保当前目录是仓库根
 
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
