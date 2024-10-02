@@ -73,9 +73,9 @@ jobs:
 
       - name: List built files
         run: |
+          cd ./sing-box
           echo "List the files in the directory to ensure builds exist"
           ls -la
-        working-directory: ./sing-box
 
       # Step 5: 上传构建的二进制文件供发布使用
       - name: Upload build artifacts
