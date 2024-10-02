@@ -71,6 +71,11 @@ jobs:
         working-directory: ./sing-box
         shell: /usr/bin/bash -e {0}
 
+      - name: List built files
+        run: |
+          echo "List the files in the directory to ensure builds exist"
+          ls -la
+
       # Step 5: 上传构建的二进制文件供发布使用
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
