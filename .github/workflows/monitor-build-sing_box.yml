@@ -51,6 +51,9 @@ jobs:
           pwd
           echo "List files in the directory:"
           ls -la
+          cd sing-box
+          echo "List files in the sing-box:"
+          ls -la
           echo "Check Go version:"
           go version
           echo "Check Go modules:"
