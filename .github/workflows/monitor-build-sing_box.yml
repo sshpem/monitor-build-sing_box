@@ -96,9 +96,9 @@ jobs:
           pwd
           echo "Building for: ${{ matrix.name }}"
           make
-          output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${{ matrix.name }}"
+          output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${{ matrix.name }}.tar.gz"
           mkdir ../build
-          mv sing-box ../build/${output_file_name}
+          tar -zcvf ../build/${output_file_name} sing-box
           ls -la ../build
         working-directory: ./sing-box
 
