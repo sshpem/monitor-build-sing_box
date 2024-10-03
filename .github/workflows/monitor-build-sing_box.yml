@@ -87,7 +87,9 @@ jobs:
 
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
-        run: make
+        run: |
+          make build
+          mv sing-box sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH-$GOMIPS
         working-directory: ./sing-box
 
       - name: List built files
