@@ -33,8 +33,9 @@ jobs:
       GOMIPS: ${{ matrix.gomips }}
       CGO_ENABLED: 0
       # TAGS: with_clash_api,with_quic
-    #outputs:
-    #  latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
+    outputs:
+      #latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
+      latest_tag_output: ${{ env.LATEST_TAG }}
 
     steps:
       # Step 1: 获取 SagerNet/sing-box 最新的标签
@@ -119,6 +120,8 @@ jobs:
   release:
     needs: check_and_build
     runs-on: ubuntu-latest
+    env:
+      LATEST_TAG: ${{ needs.check_and_build.outputs.latest_tag_output }}
 
     steps:
       # Step 1: 检出你的仓库代码
