@@ -19,7 +19,7 @@ jobs:
             goos: linux
             goarch: mipsle
             gomips: hardfloat
-          - name: linux-armv7
+          - name: linux-armv-7
             goos: linux
             goarch: arm
             goarm: 7
