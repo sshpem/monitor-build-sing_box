@@ -95,8 +95,8 @@ jobs:
           echo "Building for: ${{ matrix.name }}"
           make
           output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${{ matrix.name }}"
-          mv sing-box ${output_file_name}
-          echo "Final file: ${output_file_name}"
+          mv sing-box ./build/${output_file_name}
+          ls -la ./build
         working-directory: ./sing-box
 
       - name: List built files
