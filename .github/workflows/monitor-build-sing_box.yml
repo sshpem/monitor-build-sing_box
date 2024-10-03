@@ -83,13 +83,20 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: ^1.21
+          go-version: ^1.23
 
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
         run: |
           make
-          mv sing-box sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH-$GOMIPS
+          output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${GOOS}-${GOARCH}"
+          if [ ! -z ${GOARM} ]; then
+            output_file_name="${output_file_name}-v${GOARM}"
+          fi
+          if [ ! -z ${GOMIPS} ]; then
+            output_file_name="${output_file_name}-${GOMIPS}"
+          fi
+          mv sing-box ${output_file_name}
         working-directory: ./sing-box
 
       - name: List built files
