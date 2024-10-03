@@ -92,9 +92,12 @@ jobs:
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
         run: |
+          echo "Current directory:"
+          pwd
           echo "Building for: ${{ matrix.name }}"
           make
           output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${{ matrix.name }}"
+          mkdir ./build
           mv sing-box ./build/${output_file_name}
           ls -la ./build
         working-directory: ./sing-box
