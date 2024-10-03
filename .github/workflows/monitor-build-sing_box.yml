@@ -64,6 +64,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ^1.21
+        working-directory: ./sing-box
 
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
