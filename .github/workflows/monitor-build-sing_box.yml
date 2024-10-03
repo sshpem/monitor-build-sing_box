@@ -49,6 +49,10 @@ jobs:
       - name: Check for new tag
         id: check_tag
         run: |
+          echo "Current directory:"
+          pwd
+          echo "List files in the directory:"
+          ls -la
           if [ -f last_tag.txt ]; then
             LAST_TAG=$(cat last_tag.txt)
           else
