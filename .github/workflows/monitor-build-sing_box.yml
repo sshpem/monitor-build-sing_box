@@ -59,6 +59,11 @@ jobs:
           go mod tidy
         working-directory: ./sing-box  # 如果 go.mod 在根目录，确保当前目录是仓库根
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.21
+
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
         run: |
