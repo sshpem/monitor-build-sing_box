@@ -139,7 +139,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.check_and_build.outputs.latest_tag_output }}
-          files: ${{ github.workspace }}/sing-box-builds-${{ needs.check_and_build.outputs.latest_tag_output }}/*
+          files: ${{ github.workspace }}/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
