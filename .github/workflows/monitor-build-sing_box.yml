@@ -28,7 +28,7 @@ jobs:
       GOARM: ${{ matrix.goarm }}
       GOMIPS: ${{ matrix.gomips }}
       CGO_ENABLED: 0
-      TAGS: with_clash_api,with_quic
+      # TAGS: with_clash_api,with_quic
     outputs:
       latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
 
@@ -88,7 +88,7 @@ jobs:
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
         run: |
-          make build
+          make
           mv sing-box sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH-$GOMIPS
         working-directory: ./sing-box
 
