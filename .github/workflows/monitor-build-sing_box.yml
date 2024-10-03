@@ -1,10 +1,10 @@
 name: Monitor and Build sing-box on New Tag
 
-# 触发条件：定时触发（每小时检查一次），或者手动触发
+# condition：hourly or dispatch
 on:
   schedule:
-    - cron: '0 * * * *'  # 每小时检查一次
-  workflow_dispatch:  # 允许手动触发工作流
+    - cron: '0 * * * *'  # hourly
+  workflow_dispatch:  # dispatch
 
 jobs:
   check_and_build:
@@ -19,7 +19,7 @@ jobs:
             goos: linux
             goarch: mipsle
             gomips: hardfloat
-          - name: linux-armv-7
+          - name: linux-arm-v7
             goos: linux
             goarch: arm
             goarm: 7
@@ -34,20 +34,18 @@ jobs:
       CGO_ENABLED: 0
       # TAGS: with_clash_api,with_quic
     outputs:
-      #latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
       latest_tag_output: ${{ env.LATEST_TAG }}
 
     steps:
-      # Step 1: 获取 SagerNet/sing-box 最新的标签
+      # Step 1: get latest tag
       - name: Get latest tag from SagerNet/sing-box
         id: get_tag
         run: |
           latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
           echo "Latest tag from SagerNet/sing-box is: $latest_tag"
-          #echo "::set-output name=latest_tag::$LATEST_TAG"
           echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
 
-      # Step 2: 检查是否有新标签
+      # Step 2: check new tag
       - name: Check for new tag
         id: check_tag
         run: |
@@ -64,10 +62,8 @@ jobs:
             echo "No new tag detected."
             exit 0
           fi
-        #env:
-        #  LATEST_TAG: ${{ steps.get_tag.outputs.latest_tag }}
 
-      # Step 3: 克隆 SagerNet/sing-box 仓库
+      # Step 3: git clone SagerNet/sing-box
       - name: Clone sing-box repository
         run: |
           git clone --depth 1 --branch ${{ env.LATEST_TAG }} https://github.com/SagerNet/sing-box.git
@@ -84,24 +80,21 @@ jobs:
           go version
           echo "Check Go modules:"
           go mod tidy
-        # working-directory: ./sing-box  # 如果 go.mod 在根目录，确保当前目录是仓库根
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: ^1.23
 
-      # Step 4: 交叉编译，构建多个平台的二进制文件
+      # Step 4: cross build and tar
       - name: Build the program
         run: |
-          echo "Current directory:"
-          pwd
           echo "Building for: ${{ matrix.name }}"
           make
           output_file_name="sing-box-${{ env.LATEST_TAG }}-${{ matrix.name }}.tar.gz"
           mkdir ../build
           tar -zcvf ../build/${output_file_name} sing-box
-          ls -la ../build
+          rm sing-box
         working-directory: ./sing-box
 
       - name: List built files
@@ -110,7 +103,7 @@ jobs:
           echo "List the files in the directory to ensure builds exist"
           ls -la
 
-      # Step 5: 上传构建的二进制文件供发布使用
+      # Step 5: upload file
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -124,21 +117,17 @@ jobs:
       LATEST_TAG: ${{ needs.check_and_build.outputs.latest_tag_output }}
 
     steps:
-      # Step 1: 检出你的仓库代码
+      # Step 1: checkout
       - name: Checkout your repository
         uses: actions/checkout@v3
 
-      - name: Debug latest tag
-        run: |
-          echo "Latest tag: ${{ env.LATEST_TAG }}"
-
-      # Step 2: 下载构建产物
+      # Step 2: download
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: sing-box-builds-${{ env.LATEST_TAG }}
 
-      # Step 3: 在你的仓库中创建 GitHub Release，并附加构建产物
+      # Step 3: release to repo
       - name: Create GitHub Release in your repo
         uses: softprops/action-gh-release@v1
         with:
