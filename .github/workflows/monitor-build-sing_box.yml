@@ -46,10 +46,10 @@ jobs:
         run: |
           git clone --depth 1 --branch ${{ steps.get_tag.outputs.latest_tag }} https://github.com/SagerNet/sing-box.git
           cd sing-box
-          pwd
 
       - name: Check the working directory
         run: |
+          cd sing-box
           echo "Current directory:"
           pwd
           echo "List files in the directory:"
