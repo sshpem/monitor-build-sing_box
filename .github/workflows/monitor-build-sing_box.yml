@@ -44,11 +44,14 @@ jobs:
           latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
           echo "Latest tag from SagerNet/sing-box is: $latest_tag"
           echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
-
-      - name: Download last_tag.txt
-        uses: actions/download-artifact@v3
+      
+      - name: Cache last_tag.txt
+        uses: actions/cache@v3
         with:
-          name: last-tag-file
+          path: last_tag.txt
+          key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}
+          restore-keys: |
+            last-tag-${{ runner.os }}-
 
       # Step 2: check new tag
       - name: Check for new tag
@@ -71,12 +74,6 @@ jobs:
             echo "No new tag detected."
             exit 0
           fi
-
-      - name: Upload last_tag.txt
-        uses: actions/upload-artifact@v3
-        with:
-          name: last-tag-file
-          path: last_tag.txt
 
       # Step 3: git clone SagerNet/sing-box
       - name: Clone sing-box repository
