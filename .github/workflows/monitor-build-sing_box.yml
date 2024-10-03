@@ -72,7 +72,7 @@ jobs:
             echo "${{ env.LATEST_TAG }}" > last_tag.txt
           else
             echo "No new tag detected."
-            exit 0
+            exit 1
           fi
 
       # Step 3: git clone SagerNet/sing-box
