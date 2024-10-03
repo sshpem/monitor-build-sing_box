@@ -19,6 +19,10 @@ jobs:
             goos: linux
             goarch: mipsle
             gomips: hardfloat
+          - name: linux-armv7
+            goos: linux
+            goarch: arm
+            goarm: 7
       fail-fast: true
     runs-on: ubuntu-latest
     env:
