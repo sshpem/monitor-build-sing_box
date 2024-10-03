@@ -8,7 +8,27 @@ on:
 
 jobs:
   check_and_build:
+    strategy:
+      matrix:
+        include:
+          - name: linux-mipsel-softfloat
+            goos: linux
+            goarch: mipsle
+            gomips: softfloat
+          - name: linux-mipsel-hardfloat
+            goos: linux
+            goarch: mipsle
+            gomips: hardfloat
+      fail-fast: true
     runs-on: ubuntu-latest
+    env:
+      GOOS: ${{ matrix.goos }}
+      GOARCH: ${{ matrix.goarch }}
+      GOAMD64: ${{ matrix.goamd64 }}
+      GOARM: ${{ matrix.goarm }}
+      GOMIPS: ${{ matrix.gomips }}
+      CGO_ENABLED: 0
+      TAGS: with_clash_api,with_quic
     outputs:
       latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
 
@@ -67,17 +87,8 @@ jobs:
 
       # Step 4: 交叉编译，构建多个平台的二进制文件
       - name: Build the program
-        run: |
-          platforms=("linux/mipsle/softfloat" "linux/mipsle/hardfloat")
-          for platform in "${platforms[@]}"; do
-            GOOS=$(echo $platform | cut -d'/' -f1)
-            GOARCH=$(echo $platform | cut -d'/' -f2)
-            GOMIPS=$(echo $platform | cut -d'/' -f3)
-            echo "Building for $GOOS/$GOARCH/$GOMIPS"
-            GOOS=$GOOS GOARCH=$GOARCH GOMIPS=$GOMIPS go build -v -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH-$GOMIPS
-          done
+        run: make
         working-directory: ./sing-box
-        shell: /usr/bin/bash -e {0}
 
       - name: List built files
         run: |
