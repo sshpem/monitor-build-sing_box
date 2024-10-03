@@ -74,6 +74,7 @@ jobs:
             echo "NEED_BUILD=true" >> $GITHUB_ENV
           else
             echo "No new tag detected."
+            echo "NEED_BUILD=false" >> $GITHUB_ENV
             #exit 0
           fi
 
