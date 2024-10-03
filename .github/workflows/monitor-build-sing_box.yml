@@ -80,7 +80,7 @@ jobs:
 
       # Step 3: git clone SagerNet/sing-box
       - name: Clone sing-box repository
-        if: ${{ env.NEED_BUILD }} == "true"
+        if: env.NEED_BUILD == 'true'
         run: |
           git clone --depth 1 --branch ${{ env.LATEST_TAG }} https://github.com/SagerNet/sing-box.git
           cd sing-box
