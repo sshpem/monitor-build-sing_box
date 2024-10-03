@@ -45,6 +45,11 @@ jobs:
           echo "Latest tag from SagerNet/sing-box is: $latest_tag"
           echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
 
+      - name: Download last_tag.txt
+        uses: actions/download-artifact@v3
+        with:
+          name: last-tag-file
+
       # Step 2: check new tag
       - name: Check for new tag
         id: check_tag
@@ -66,6 +71,12 @@ jobs:
             echo "No new tag detected."
             exit 0
           fi
+
+      - name: Upload last_tag.txt
+        uses: actions/upload-artifact@v3
+        with:
+          name: last-tag-file
+          path: last_tag.txt
 
       # Step 3: git clone SagerNet/sing-box
       - name: Clone sing-box repository
