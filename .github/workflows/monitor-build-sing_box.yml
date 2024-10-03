@@ -97,14 +97,14 @@ jobs:
           echo "Building for: ${{ matrix.name }}"
           make
           output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${{ matrix.name }}"
-          mkdir ./build
-          mv sing-box ./build/${output_file_name}
-          ls -la ./build
+          mkdir ../build
+          mv sing-box ../build/${output_file_name}
+          ls -la ../build
         working-directory: ./sing-box
 
       - name: List built files
         run: |
-          cd ./sing-box
+          cd ./build
           echo "List the files in the directory to ensure builds exist"
           ls -la
 
@@ -113,9 +113,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sing-box-builds-${{ steps.get_tag.outputs.latest_tag }}
-          path: |
-            ./sing-box/sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-softfloat
-            ./sing-box/sing-box-${{ steps.get_tag.outputs.latest_tag }}-linux-mipsle-hardfloat
+          path: ./build
 
   release:
     needs: check_and_build
@@ -141,9 +139,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.check_and_build.outputs.latest_tag_output }}
-          files: |
-            sing-box-${{ needs.check_and_build.outputs.latest_tag_output }}-linux-mipsle-softfloat
-            sing-box-${{ needs.check_and_build.outputs.latest_tag_output }}-linux-mipsle-hardfloat
+          files: ./build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
