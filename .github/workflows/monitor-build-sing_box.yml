@@ -73,7 +73,7 @@ jobs:
             GOARCH=$(echo $platform | cut -d'/' -f2)
             GOMIPS=$(echo $platform | cut -d'/' -f3)
             echo "Building for $GOOS/$GOARCH/$GOMIPS"
-            GOOS=$GOOS GOARCH=$GOARCH GOMIPS=$GOMIPS go build -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH-$GOMIPS
+            GOOS=$GOOS GOARCH=$GOARCH GOMIPS=$GOMIPS go build -v -o sing-box-${{ steps.get_tag.outputs.latest_tag }}-$GOOS-$GOARCH-$GOMIPS
           done
         working-directory: ./sing-box
         shell: /usr/bin/bash -e {0}
