@@ -3,7 +3,7 @@ name: Monitor and Build sing-box on New Tag
 # condition：hourly or dispatch
 on:
   schedule:
-    - cron: '0 * * * *'  # hourly
+    #- cron: '0 * * * *'  # hourly
   workflow_dispatch:  # dispatch
 
 jobs:
