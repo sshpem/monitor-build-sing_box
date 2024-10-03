@@ -33,17 +33,18 @@ jobs:
       GOMIPS: ${{ matrix.gomips }}
       CGO_ENABLED: 0
       # TAGS: with_clash_api,with_quic
-    outputs:
-      latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
+    #outputs:
+    #  latest_tag_output: ${{ steps.get_tag.outputs.latest_tag }}  # 使用另一个名称作为作业输出
 
     steps:
       # Step 1: 获取 SagerNet/sing-box 最新的标签
       - name: Get latest tag from SagerNet/sing-box
         id: get_tag
         run: |
-          LATEST_TAG=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
-          echo "Latest tag from SagerNet/sing-box is: $LATEST_TAG"
-          echo "::set-output name=latest_tag::$LATEST_TAG"
+          latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
+          echo "Latest tag from SagerNet/sing-box is: $latest_tag"
+          #echo "::set-output name=latest_tag::$LATEST_TAG"
+          echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
 
       # Step 2: 检查是否有新标签
       - name: Check for new tag
@@ -62,13 +63,13 @@ jobs:
             echo "No new tag detected."
             exit 0
           fi
-        env:
-          LATEST_TAG: ${{ steps.get_tag.outputs.latest_tag }}
+        #env:
+        #  LATEST_TAG: ${{ steps.get_tag.outputs.latest_tag }}
 
       # Step 3: 克隆 SagerNet/sing-box 仓库
       - name: Clone sing-box repository
         run: |
-          git clone --depth 1 --branch ${{ steps.get_tag.outputs.latest_tag }} https://github.com/SagerNet/sing-box.git
+          git clone --depth 1 --branch ${{ env.LATEST_TAG }} https://github.com/SagerNet/sing-box.git
           cd sing-box
 
       - name: Check the working directory
@@ -96,7 +97,7 @@ jobs:
           pwd
           echo "Building for: ${{ matrix.name }}"
           make
-          output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${{ matrix.name }}.tar.gz"
+          output_file_name="sing-box-${{ env.LATEST_TAG }}-${{ matrix.name }}.tar.gz"
           mkdir ../build
           tar -zcvf ../build/${output_file_name} sing-box
           ls -la ../build
@@ -112,7 +113,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sing-box-builds-${{ steps.get_tag.outputs.latest_tag }}
+          name: sing-box-builds-${{ env.LATEST_TAG }}
           path: ./build
 
   release:
@@ -126,19 +127,19 @@ jobs:
 
       - name: Debug latest tag
         run: |
-          echo "Latest tag: ${{ needs.check_and_build.outputs.latest_tag_output }}"
+          echo "Latest tag: ${{ env.LATEST_TAG }}"
 
       # Step 2: 下载构建产物
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: sing-box-builds-${{ needs.check_and_build.outputs.latest_tag_output }}
+          name: sing-box-builds-${{ env.LATEST_TAG }}
 
       # Step 3: 在你的仓库中创建 GitHub Release，并附加构建产物
       - name: Create GitHub Release in your repo
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.check_and_build.outputs.latest_tag_output }}
+          tag_name: ${{ env.LATEST_TAG }}
           files: ${{ github.workspace }}/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
