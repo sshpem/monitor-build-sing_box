@@ -93,13 +93,7 @@ jobs:
       - name: Build the program
         run: |
           make
-          output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${GOOS}-${GOARCH}"
-          if [ ! -z ${GOARM} ]; then
-            output_file_name="${output_file_name}-v${GOARM}"
-          fi
-          if [ ! -z ${GOMIPS} ]; then
-            output_file_name="${output_file_name}-${GOMIPS}"
-          fi
+          output_file_name="sing-box-${{ steps.get_tag.outputs.latest_tag }}-${{ matrix.name }}"
           mv sing-box ${output_file_name}
         working-directory: ./sing-box
 
