@@ -125,7 +125,7 @@ jobs:
         if: ${{ env.NEED_BUILD == 'true' }}
         uses: actions/upload-artifact@v4
         with:
-          name: sing-box-builds-${{ env.LATEST_TAG }}-${{ matrix.name }}
+          name: sing-box-builds-${{ env.LATEST_TAG }}
           path: ./build
 
   release:
@@ -144,7 +144,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: sing-box-builds-${{ env.LATEST_TAG }}-${{ needs.check_and_build.outputs.artifact_name }}
+          name: sing-box-builds-${{ env.LATEST_TAG }}
 
       # Release to repo
       - name: Create GitHub Release in your repo
