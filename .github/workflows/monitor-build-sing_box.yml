@@ -83,12 +83,16 @@ jobs:
         if: ${{ env.NEED_BUILD == 'true' }}
         run: |
           git clone --depth 1 --branch ${{ env.LATEST_TAG }} https://github.com/SagerNet/sing-box.git
-          cd sing-box
+
+      - name: Setup Go
+        if: ${{ env.NEED_BUILD == 'true' }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.23
 
       - name: Check the working directory
         if: ${{ env.NEED_BUILD == 'true' }}
         run: |
-          cd sing-box
           echo "Current directory:"
           pwd
           echo "List files in the directory:"
@@ -97,12 +101,7 @@ jobs:
           go version
           echo "Check Go modules:"
           go mod tidy
-
-      - name: Setup Go
-        if: ${{ env.NEED_BUILD == 'true' }}
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.23
+        working-directory: ./sing-box
 
       # Step 4: cross build and tar
       - name: Build the program
