@@ -36,7 +36,6 @@ jobs:
     outputs:
       latest_tag_output: ${{ env.LATEST_TAG }}
       need_release: ${{ env.NEED_BUILD }}
-      artifact_name: ${{ env.MATRIX_NAME }}
 
     steps:
       # Get latest tag
@@ -105,7 +104,6 @@ jobs:
         if: ${{ env.NEED_BUILD == 'true' }}
         run: |
           echo "Building for: ${{ matrix.name }}"
-          echo "MATRIX_NAME=${{ matrix.name }}" >> $GITHUB_ENV
           make
           output_file_name="sing-box-${{ env.LATEST_TAG }}-${{ matrix.name }}.tar.gz"
           mkdir ../build
@@ -123,7 +121,7 @@ jobs:
       # Upload file
       - name: Upload build artifacts
         if: ${{ env.NEED_BUILD == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: sing-box-builds-${{ env.LATEST_TAG }}
           path: ./build
@@ -142,7 +140,7 @@ jobs:
 
       # Download
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: sing-box-builds-${{ env.LATEST_TAG }}
 
