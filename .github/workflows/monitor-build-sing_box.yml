@@ -38,7 +38,7 @@ jobs:
       need_release: ${{ env.NEED_BUILD }}
 
     steps:
-      # Step 1: get latest tag
+      # Get latest tag
       - name: Get latest tag from SagerNet/sing-box
         id: get_tag
         run: |
@@ -54,14 +54,10 @@ jobs:
           restore-keys: |
             last-tag-${{ runner.os }}-
 
-      # Step 2: check new tag
+      # Check new tag
       - name: Check for new tag
         id: check_tag
         run: |
-          echo "Current directory:"
-          pwd
-          echo "List files in the directory:"
-          ls -la
           if [ -f last_tag.txt ]; then
             LAST_TAG=$(cat last_tag.txt)
           else
@@ -78,7 +74,7 @@ jobs:
             #exit 0
           fi
 
-      # Step 3: git clone SagerNet/sing-box
+      # Git clone SagerNet/sing-box
       - name: Clone sing-box repository
         if: ${{ env.NEED_BUILD == 'true' }}
         run: |
@@ -103,7 +99,7 @@ jobs:
           go mod tidy
         working-directory: ./sing-box
 
-      # Step 4: cross build and tar
+      # Cross build and tar
       - name: Build the program
         if: ${{ env.NEED_BUILD == 'true' }}
         run: |
@@ -122,7 +118,7 @@ jobs:
           echo "List the files in the directory to ensure builds exist"
           ls -la
 
-      # Step 5: upload file
+      # Upload file
       - name: Upload build artifacts
         if: ${{ env.NEED_BUILD == 'true' }}
         uses: actions/upload-artifact@v4
@@ -138,17 +134,17 @@ jobs:
       LATEST_TAG: ${{ needs.check_and_build.outputs.latest_tag_output }}
 
     steps:
-      # Step 1: checkout
+      # Checkout
       - name: Checkout your repository
         uses: actions/checkout@v3
 
-      # Step 2: download
+      # Download
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: sing-box-builds-${{ env.LATEST_TAG }}
 
-      # Step 3: release to repo
+      # Release to repo
       - name: Create GitHub Release in your repo
         uses: softprops/action-gh-release@v1
         with:
@@ -156,4 +152,3 @@ jobs:
           files: ${{ github.workspace }}/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
