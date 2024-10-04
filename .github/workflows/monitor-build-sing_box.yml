@@ -80,12 +80,13 @@ jobs:
 
       # Step 3: git clone SagerNet/sing-box
       - name: Clone sing-box repository
-        if: env.NEED_BUILD == 'true'
+        if: ${{ env.NEED_BUILD }} == 'true'
         run: |
           git clone --depth 1 --branch ${{ env.LATEST_TAG }} https://github.com/SagerNet/sing-box.git
           cd sing-box
 
       - name: Check the working directory
+        if: ${{ env.NEED_BUILD }} == 'true'
         run: |
           cd sing-box
           echo "Current directory:"
@@ -98,14 +99,14 @@ jobs:
           go mod tidy
 
       - name: Setup Go
-        if: ${{ env.NEED_BUILD }} == "true"
+        if: ${{ env.NEED_BUILD }} == 'true'
         uses: actions/setup-go@v5
         with:
           go-version: ^1.23
 
       # Step 4: cross build and tar
       - name: Build the program
-        if: ${{ env.NEED_BUILD }} == "true"
+        if: ${{ env.NEED_BUILD }} == 'true'
         run: |
           echo "Building for: ${{ matrix.name }}"
           make
@@ -116,6 +117,7 @@ jobs:
         working-directory: ./sing-box
 
       - name: List built files
+        if: ${{ env.NEED_BUILD }} == 'true'
         run: |
           cd ./build
           echo "List the files in the directory to ensure builds exist"
@@ -123,7 +125,7 @@ jobs:
 
       # Step 5: upload file
       - name: Upload build artifacts
-        if: ${{ env.NEED_BUILD }} == "true"
+        if: ${{ env.NEED_BUILD }} == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: sing-box-builds-${{ env.LATEST_TAG }}
@@ -132,7 +134,7 @@ jobs:
   release:
     needs: check_and_build
     runs-on: ubuntu-latest
-    if: ${{ needs.check_and_build.outputs.need_release }} == "true"
+    if: ${{ needs.check_and_build.outputs.need_release }} == 'true'
     env:
       LATEST_TAG: ${{ needs.check_and_build.outputs.latest_tag_output }}
 
