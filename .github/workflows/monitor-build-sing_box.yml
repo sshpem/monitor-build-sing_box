@@ -47,7 +47,7 @@ jobs:
           echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
       
       - name: Cache last_tag.txt
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: last_tag.txt
           key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}
@@ -126,7 +126,7 @@ jobs:
       # Step 5: upload file
       - name: Upload build artifacts
         if: ${{ env.NEED_BUILD == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sing-box-builds-${{ env.LATEST_TAG }}
           path: ./build
@@ -145,7 +145,7 @@ jobs:
 
       # Step 2: download
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sing-box-builds-${{ env.LATEST_TAG }}
 
