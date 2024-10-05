@@ -1,2 +1,3 @@
 # monitor-build-sing_box
-monitor sing-box original repo, build and release automatic when new tag added (not include pre-release), only build mipsel and arm v7 arch
+The repo not have any source code of sing-box, it monitor sing-box original repo ( https://github.com/SagerNet/sing-box ), build and release automatic when new tag added ( stable only, not include pre-release ), only build mipsel and armv7 arch.
+You can get source code of sing-box and other arch binary file from original repo.
