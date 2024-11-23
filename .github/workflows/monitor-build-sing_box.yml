@@ -23,9 +23,9 @@ jobs:
             goos: linux
             goarch: arm
             goarm: 7
-          - name: freebsd-amd64
-            goos: freebsd
-            goarch: amd64
+          #- name: freebsd-amd64
+          #  goos: freebsd
+          #  goarch: amd64
       fail-fast: true
     runs-on: ubuntu-latest
     env:
