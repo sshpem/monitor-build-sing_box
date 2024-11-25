@@ -76,8 +76,6 @@ jobs:
             echo "NEED_BUILD=false" >> $GITHUB_ENV
             #exit 0
           fi
-          echo "last_tag.txt is:"
-          cat last_tag.txt
 
       # Git clone SagerNet/sing-box
       - name: Clone sing-box repository
