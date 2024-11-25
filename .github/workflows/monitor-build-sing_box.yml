@@ -77,7 +77,7 @@ jobs:
             #exit 0
           fi
           echo "last_tag.txt is:"
-          echo last_tag.txt
+          cat last_tag.txt
 
       # Git clone SagerNet/sing-box
       - name: Clone sing-box repository
