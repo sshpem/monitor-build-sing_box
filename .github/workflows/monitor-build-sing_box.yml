@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: last_tag.txt
-          key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}
+          key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}--${{ env.LATEST_TAG }}
           restore-keys: |
             last-tag-${{ runner.os }}-
 
