@@ -62,12 +62,12 @@ jobs:
         id: check_tag
         run: |
           if [ -f last_tag.txt ]; then
-            LAST_TAG=$(cat last_tag.txt)
+            RECORD_LAST_TAG=$(cat last_tag.txt)
           else
-            LAST_TAG=""
+            RECORD_LAST_TAG=""
           fi
-          echo "Last checked tag: $LAST_TAG"
-          if [ "${{ env.LATEST_TAG }}" != "$LAST_TAG" ]; then
+          echo "Last checked tag: $RECORD_LAST_TAG"
+          if [ "${{ env.LATEST_TAG }}" != "$RECORD_LAST_TAG" ]; then
             echo "New tag detected: ${{ env.LATEST_TAG }}"
             echo "${{ env.LATEST_TAG }}" > last_tag.txt
             echo "NEED_BUILD=true" >> $GITHUB_ENV
