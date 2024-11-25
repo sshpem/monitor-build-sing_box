@@ -45,9 +45,9 @@ jobs:
       - name: Get latest tag from SagerNet/sing-box
         id: get_tag
         run: |
-          latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
-          echo "Latest tag from SagerNet/sing-box is: $latest_tag"
-          echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
+          repo_latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
+          echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
+          echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
       
       - name: Cache last_tag.txt
         uses: actions/cache@v4
