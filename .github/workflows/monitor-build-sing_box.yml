@@ -48,12 +48,16 @@ jobs:
           repo_latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
           echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
           echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
+
+      - name: Creat last_tag.txt
+        run: |
+          echo "" > last_tag.txt
       
       - name: Cache last_tag.txt
         uses: actions/cache@v4
         with:
           path: last_tag.txt
-          key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}-${{ env.LATEST_TAG }}
+          key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}
           restore-keys: |
             last-tag-${{ runner.os }}-
 
