@@ -1,0 +1,187 @@
+name: Monitor and Build sing-box on New Tag
+
+# condition：hourly or dispatch
+on:
+  schedule:
+    - cron: '0 * * * *'  # hourly
+  workflow_dispatch:  # dispatch
+
+jobs:
+  check_and_build:
+    strategy:
+      matrix:
+        include:
+          - name: linux-mipsel-softfloat
+            goos: linux
+            goarch: mipsle
+            gomips: softfloat
+          - name: linux-mipsel-hardfloat
+            goos: linux
+            goarch: mipsle
+            gomips: hardfloat
+          - name: linux-arm-v7
+            goos: linux
+            goarch: arm
+            goarm: 7
+          #- name: freebsd-amd64
+          #  goos: freebsd
+          #  goarch: amd64
+      fail-fast: true
+    runs-on: ubuntu-latest
+    env:
+      GOOS: ${{ matrix.goos }}
+      GOARCH: ${{ matrix.goarch }}
+      GOAMD64: ${{ matrix.goamd64 }}
+      GOARM: ${{ matrix.goarm }}
+      GOMIPS: ${{ matrix.gomips }}
+      CGO_ENABLED: 0
+      # TAGS: with_clash_api,with_quic
+    outputs:
+      latest_tag_output: ${{ env.LATEST_TAG }}
+      need_release: ${{ env.NEED_BUILD }}
+
+    steps:
+        
+      # Get latest tag
+      - name: Get latest tag from SagerNet/sing-box
+        id: get_tag
+        run: |
+          repo_latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
+          echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
+          echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
+
+      - name: Creat last_tag.txt
+        run: |
+          echo "" > last_tag.txt
+      
+      - name: Cache last_tag.txt
+        uses: actions/cache@v4
+        with:
+          path: last_tag.txt
+          key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}
+          restore-keys: |
+            last-tag-${{ runner.os }}-
+
+      # Check new tag
+      - name: Check for new tag
+        id: check_tag
+        run: |
+          if [ -f last_tag.txt ]; then
+            RECORD_LAST_TAG=$(cat last_tag.txt)
+          else
+            RECORD_LAST_TAG=""
+          fi
+          echo "Last checked tag: $RECORD_LAST_TAG"
+          if [ "${{ env.LATEST_TAG }}" != "$RECORD_LAST_TAG" ]; then
+            echo "New tag detected: ${{ env.LATEST_TAG }}"
+            echo "${{ env.LATEST_TAG }}" > last_tag.txt
+            echo "NEED_BUILD=true" >> $GITHUB_ENV
+          else
+            echo "No new tag detected."
+            echo "NEED_BUILD=false" >> $GITHUB_ENV
+            #exit 0
+          fi
+
+      # Git clone SagerNet/sing-box
+      - name: Clone sing-box repository
+        if: ${{ env.NEED_BUILD == 'true' }}
+        run: |
+          git clone --depth 1 --branch ${{ env.LATEST_TAG }} https://github.com/SagerNet/sing-box.git
+
+      - name: Setup Go
+        if: ${{ env.NEED_BUILD == 'true' }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ^1.23
+
+      - name: Check the working directory
+        if: ${{ env.NEED_BUILD == 'true' }}
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "List files in the directory:"
+          ls -la
+          echo "Check Go version:"
+          go version
+          echo "Check Go modules:"
+          go mod tidy
+        working-directory: ./sing-box
+
+      # Cross build and tar
+      - name: Build the program
+        if: ${{ env.NEED_BUILD == 'true' }}
+        run: |
+          echo "Building for: ${{ matrix.name }}"
+          make
+          output_file_name="sing-box-${{ env.LATEST_TAG }}-${{ matrix.name }}.tar.gz"
+          mkdir ../build
+          tar -zcvf ../build/${output_file_name} sing-box
+          rm sing-box
+        working-directory: ./sing-box
+
+      - name: List built files
+        if: ${{ env.NEED_BUILD == 'true' }}
+        run: |
+          cd ./build
+          echo "List the files in the directory to ensure builds exist"
+          ls -la
+
+      # Upload file
+      - name: Upload build artifacts
+        if: ${{ env.NEED_BUILD == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sing-box-builds-${{ env.LATEST_TAG }}-${{ matrix.name }}
+          path: ./build
+
+  release:
+    needs: check_and_build
+    runs-on: ubuntu-latest
+    if: ${{ needs.check_and_build.outputs.need_release == 'true' }}
+    env:
+      LATEST_TAG: ${{ needs.check_and_build.outputs.latest_tag_output }}
+
+    steps:
+      # Checkout
+      - name: Checkout your repository
+        uses: actions/checkout@v3
+
+      - name: Download all build artifacts
+        run: |
+        # 使用 GitHub API 获取所有 artifact 名称
+          artifacts=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+            | jq -r '.artifacts[] | select(.name | startswith("sing-box-builds-${{ env.LATEST_TAG }}")) | .name')
+        
+        # 下载所有符合条件的 artifact
+          for artifact in $artifacts; do
+            echo "Downloading artifact: $artifact"
+            curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -o "${artifact}.tar.gz" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$artifact/tarball"
+          done
+
+      # Download
+      #- name: Download build artifacts
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    name: sing-box-builds-${{ env.LATEST_TAG }}-${{ matrix.name }}
+
+      # Release to repo
+      - name: Create GitHub Release in your repo
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.LATEST_TAG }}
+          files: ${{ github.workspace }}/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  delete_workflows:
+    runs-on: ubuntu-latest  
+    steps:
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 3
+          keep_minimum_runs: 6
+          
