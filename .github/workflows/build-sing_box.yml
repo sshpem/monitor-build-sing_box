@@ -126,16 +126,9 @@ jobs:
           echo "List the files in the directory to ensure builds exist"
           ls -la
 
-      # Upload file
-      - name: Upload build artifacts
-        if: ${{ env.NEED_BUILD == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: sing-box-builds-${{ env.LATEST_TAG }}-${{ matrix.name }}
-          path: ./build
-
       # Release to repo
       - name: Create GitHub Release in your repo
+        if: ${{ env.NEED_BUILD == 'true' }}
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.LATEST_TAG }}
