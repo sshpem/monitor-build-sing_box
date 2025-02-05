@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # dispatch
 
 jobs:
-  check_new_version
+  check_new_version:
     runs-on: ubuntu-latest
     outputs:
       latest_tag_output: ${{ env.LATEST_TAG }}
