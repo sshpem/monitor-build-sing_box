@@ -50,9 +50,9 @@ jobs:
           echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
           echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
 
-      - name: Creat last_tag.txt
-        run: |
-          echo "" > last_tag.txt
+      #- name: Creat last_tag.txt
+      #  run: |
+      #    echo "" > last_tag.txt
       
       - name: Cache last_tag.txt
         uses: actions/cache@v4
