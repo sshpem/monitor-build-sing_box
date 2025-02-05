@@ -22,12 +22,13 @@ jobs:
           echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
           echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
 
-      # Download last tag file
-      - name: Download last tag file
-        uses: actions/download-artifact@v4
+      - name: Cache last_tag.txt
+        uses: actions/cache@v4
         with:
-          name: last_tag_file
-        continue-on-error: true
+          path: last_tag.txt
+          key: last-tag-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            last-tag-${{ runner.os }}-
 
       # Check new tag
       - name: Check for new tag
@@ -49,14 +50,6 @@ jobs:
             #exit 0
           fi
 
-      # Save last tag file
-      - name: Save last tag file
-        if: ${{ env.NEED_BUILD == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: last_tag_file
-          path: last_tag.txt
-    
   check_and_build:
     strategy:
       matrix:
