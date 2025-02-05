@@ -24,7 +24,7 @@ jobs:
 
       # Download last tag file
       - name: Download last tag file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: last_tag_file
 
@@ -51,7 +51,7 @@ jobs:
       # Save last tag file
       - name: Save last tag file
         if: ${{ env.NEED_BUILD == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: last_tag_file
           path: last_tag.txt
