@@ -62,6 +62,8 @@ jobs:
 
       - name: Create and push data to repository
         run: |
+          git config user.email "sshpem@action.com"
+          git config user.name "sshpem"
           git add last_tag.txt
           git commit -m "Update last_tag"
           git push
