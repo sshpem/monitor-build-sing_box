@@ -26,11 +26,11 @@ jobs:
           echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
           echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
 
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: shared-data
-        continue-on-error: true
+      #- name: Download artifact
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    name: shared-data
+      #  continue-on-error: true
 
       #- name: Cache last_tag.txt
       #  uses: actions/cache@v4
@@ -60,11 +60,19 @@ jobs:
             #exit 0
           fi
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: shared-data
-          path: last_tag.txt
+      - name: Create and push data to repository
+        run: |
+          git add last_tag.txt
+          git commit -m "Update last_tag"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      #- name: Upload artifact
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: shared-data
+      #    path: last_tag.txt
 
   check_and_build:
     strategy:
