@@ -14,7 +14,6 @@ jobs:
       need_build: ${{ env.NEED_BUILD }}
     
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v3
         
@@ -26,33 +25,19 @@ jobs:
           echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
           echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
 
-      #- name: Download artifact
-      #  uses: actions/download-artifact@v4
-      #  with:
-      #    name: shared-data
-      #  continue-on-error: true
-
-      #- name: Cache last_tag.txt
-      #  uses: actions/cache@v4
-      #  with:
-      #    path: last_tag.txt
-      #    key: last-tag-${{ runner.os }}-${{ github.run_id }}
-      #    restore-keys: |
-      #      last-tag-${{ runner.os }}-
-
       # Check new tag
       - name: Check for new tag
         id: check_tag
         run: |
-          if [ -f last_tag.txt ]; then
-            RECORD_LAST_TAG=$(cat last_tag.txt)
+          if [ -f last_tag ]; then
+            RECORD_LAST_TAG=$(cat last_tag)
           else
             RECORD_LAST_TAG=""
           fi
           echo "Last checked tag: $RECORD_LAST_TAG"
           if [ "${{ env.LATEST_TAG }}" != "$RECORD_LAST_TAG" ]; then
             echo "New tag detected: ${{ env.LATEST_TAG }}"
-            echo "${{ env.LATEST_TAG }}" > last_tag.txt
+            echo "${{ env.LATEST_TAG }}" > last_tag
             echo "NEED_BUILD=true" >> $GITHUB_ENV
           else
             echo "No new tag detected."
@@ -60,23 +45,18 @@ jobs:
             #exit 0
           fi
 
-      - name: Create and push data to repository
+      - name: Push last_tag to repository
+        if: ${{ env.NEED_BUILD == 'true' }}
         run: |
           git config user.email "sshpem@action.com"
           git config user.name "sshpem"
-          git add last_tag.txt
+          git add last_tag
           git commit -m "Update last_tag"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      #- name: Upload artifact
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: shared-data
-      #    path: last_tag.txt
-
-  check_and_build:
+  build_new_version:
     strategy:
       matrix:
         include:
