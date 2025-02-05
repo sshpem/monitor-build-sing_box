@@ -14,6 +14,10 @@ jobs:
       need_build: ${{ env.NEED_BUILD }}
     
     steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
       # Get latest tag
       - name: Get latest tag from SagerNet/sing-box
         id: get_tag
@@ -22,13 +26,18 @@ jobs:
           echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
           echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
 
-      - name: Cache last_tag.txt
-        uses: actions/cache@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          path: last_tag.txt
-          key: last-tag-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: |
-            last-tag-${{ runner.os }}-
+          name: shared-data
+
+      #- name: Cache last_tag.txt
+      #  uses: actions/cache@v4
+      #  with:
+      #    path: last_tag.txt
+      #    key: last-tag-${{ runner.os }}-${{ github.run_id }}
+      #    restore-keys: |
+      #      last-tag-${{ runner.os }}-
 
       # Check new tag
       - name: Check for new tag
@@ -49,6 +58,12 @@ jobs:
             echo "NEED_BUILD=false" >> $GITHUB_ENV
             #exit 0
           fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-data
+          path: last_tag.txt
 
   check_and_build:
     strategy:
