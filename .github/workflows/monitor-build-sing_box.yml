@@ -1,4 +1,4 @@
-name: New Monitor and Build sing-box on New Tag
+name: Monitor and Build sing-box on New Tag
 
 # condition：hourly or dispatch
 on:
