@@ -21,14 +21,12 @@ jobs:
           repo_latest_tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases | jq -r '[.[] | select(.prerelease == false)][0].tag_name')
           echo "Latest tag from SagerNet/sing-box is: $repo_latest_tag"
           echo "LATEST_TAG=$repo_latest_tag" >> $GITHUB_ENV
-      
-      - name: Cache last_tag.txt
-        uses: actions/cache@v4
+
+      # Download last tag file
+      - name: Download last tag file
+        uses: actions/download-artifact@v3
         with:
-          path: last_tag.txt
-          key: last-tag-${{ runner.os }}-${{ hashFiles('last_tag.txt') }}
-          restore-keys: |
-            last-tag-${{ runner.os }}-
+          name: last_tag_file
 
       # Check new tag
       - name: Check for new tag
@@ -49,6 +47,14 @@ jobs:
             echo "NEED_BUILD=false" >> $GITHUB_ENV
             #exit 0
           fi
+
+      # Save last tag file
+      - name: Save last tag file
+        if: ${{ env.NEED_BUILD == 'true' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: last_tag_file
+          path: last_tag.txt
     
   check_and_build:
     strategy:
